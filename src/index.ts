@@ -1,57 +1,72 @@
-// src/index.ts
-import express from "express";
+import express, { Request, Response } from "express";
 import http from "http";
 import cors from "cors";
+import { Server as IOServer, Socket } from "socket.io";
 import swaggerUi from "swagger-ui-express";
+
 import { swaggerSpec } from "./swagger";
+import questionsRouter from "./routes/questions";
 import { GameRoom } from "./GameRoom";
 import { QUESTIONS } from "./config";
-import type { ClientToServer, ServerToClient } from "./types";
-import questionsRouter from "./routes/questions";
+
+// ----- CORS 허용 도메인 배열로 준비 (문자열 -> 배열) -----
+const ALLOW: string[] = (process.env.CORS_ORIGIN ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// 로컬 개발/배포 기본값(환경변수 없을 때)
+if (ALLOW.length === 0) {
+  ALLOW.push("http://localhost:5173");
+  ALLOW.push("https://socket-oxgame.onrender.com");
+}
 
 const app = express();
 
-/** CORS는 반드시 최상단에서 */
-const ALLOW = "https://socket-oxgame.onrender.com";
-
-app.use(cors({ origin: ALLOW, credentials: false }));
+// HTTP(REST/Swagger) CORS
+app.use(
+  cors({
+    origin: ALLOW,
+    credentials: false,
+  })
+);
 app.use(express.json());
 
-/** REST 라우트 & Swagger */
+// 라우터 & Swagger
 app.use("/api/questions", questionsRouter);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get("/docs.json", (_, res) => res.json(swaggerSpec));
+app.get("/docs.json", (_req: Request, res: Response) => res.json(swaggerSpec));
+app.get("/health", (_req: Request, res: Response) =>
+  res.json({ ok: true, service: "ox-server" })
+);
 
-/**
- * @openapi
- * /health:
- *   get:
- *     summary: 서버 상태 확인
- *     description: 서버가 정상적으로 실행 중인지 헬스체크용 API
- *     responses:
- *       200:
- *         description: 서버 정상 동작
- */
-app.get("/health", (_, res) => res.json({ ok: true, service: "ox-server" }));
-
-/** HTTP + Socket.IO */
+// Socket.IO
 const server = http.createServer(app);
-const io = new Server<ClientToServer, ServerToClient>(server, {
-  cors: { origin: ALLOW, methods: ["GET", "POST"] },
+const io = new IOServer(server, {
+  cors: {
+    origin: ALLOW,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+    credentials: false,
+  },
 });
 
-/** 단일 게임룸 */
+// 게임룸
 const room = new GameRoom(io, QUESTIONS);
 room.startLoop();
 
-/** 소켓 이벤트 */
-io.on("connection", (socket) => {
-  console.log("✅ connected:", socket.id);
+// 클라로부터 오는 입력 payload 타입
+type InputPayload = Partial<{
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+}>;
 
-  socket.on("getState", (cb: (s: any) => void) => cb(room.state));
+io.on("connection", (socket: Socket) => {
+  console.log("connected:", socket.id);
 
-  socket.on("join", ({ name }) => {
-    console.log("➡️ join", socket.id, name);
+  socket.on("join", ({ name }: { name?: string }) => {
     try {
       if (room.state.phase !== "LOBBY") {
         socket.emit("error", { message: "이미 시작되어 입장 불가합니다." });
@@ -59,8 +74,7 @@ io.on("connection", (socket) => {
       }
       room.addPlayer(socket.id, (name ?? "").toString().slice(0, 16));
       socket.join(room.id);
-      socket.emit("state", room.state); // 본인에게
-      room.broadcastState(); // 전체에게
+      room.broadcastState(socket.id); // 개인에게 스냅샷
     } catch (e: any) {
       socket.emit("error", { message: e?.message ?? "입장 실패" });
     }
@@ -68,21 +82,22 @@ io.on("connection", (socket) => {
 
   socket.on("ready", () => room.setReady(socket.id));
 
-  socket.on("input", (payload) => {
+  socket.on("input", (payload: InputPayload) => {
+    // QUESTION(또는 STARTING 허용 시)만 이동 반영
     room.receiveInput(socket.id, payload);
   });
 
   socket.on("disconnect", () => {
-    const p = room.state.players[socket.id];
-    if (p) {
-      delete room.state.players[socket.id]; // ✅ 완전 제거
+    if (room.state.players[socket.id]) {
+      delete room.state.players[socket.id];
       room.broadcastState();
     }
+    console.log("disconnected:", socket.id);
   });
 });
 
-/** 서버 시작 */
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () =>
-  console.log(`🚀 server on :${PORT} allow=${ALLOW.join(" | ")}  (docs: /docs)`)
-);
+// Render는 반드시 PORT 사용 + 0.0.0.0 바인딩
+const PORT = Number(process.env.PORT) || 4000;
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`server on :${PORT} (docs: /docs, health: /health)`);
+});
