@@ -16,14 +16,13 @@ export class GameRoom {
   id = "default";
   state: RoomState;
 
-  // ✅ inputs는 단 하나만
+  // inputs는 단 하나만
   private inputs = new Map<
     string,
     Partial<{ up: boolean; down: boolean; left: boolean; right: boolean }>
   >();
 
   private loop?: NodeJS.Timeout;
-  private lastTick = Date.now();
   questions: Question[];
 
   constructor(io: IOServer, questions: Question[]) {
@@ -39,24 +38,25 @@ export class GameRoom {
     };
   }
 
-  // ✅ 공용 스냅샷 브로드캐스트
+  // 공용 스냅샷 브로드캐스트
   public broadcastState(targetSocketId?: string) {
     if (targetSocketId) this.io.to(targetSocketId).emit("state", this.state);
     else this.io.to(this.id).emit("state", this.state);
   }
 
   public startLoop() {
-    if (this.loop) return; // 중복 방지
-    this.lastTick = Date.now(); // 기준 초기화
+    if (this.loop) return;
     this.loop = setInterval(() => this.tick(), 1000 / TICK_HZ);
   }
 
-  tick(dt: number) {
+  private lastTick = Date.now(); // 클래스 필드로 유지
+
+  private tick() {
     const now = Date.now();
-    const elapsed = (now - this.lastTick) / 1000;
+    const dt = (now - this.lastTick) / 1000; // 초 단위
     this.lastTick = now;
 
-    // 카운트다운 처리
+    // 카운트다운 업데이트
     if (["STARTING", "QUESTION", "RESULT"].includes(this.state.phase)) {
       if (this.state.countdown > 0) {
         this.state.countdown -= 1 / TICK_HZ;
@@ -68,12 +68,11 @@ export class GameRoom {
       }
     }
 
-    // 움직임 업데이트 (STARTING에도 허용하려면 조건 추가)
+    // STARTING에도 이동 허용하려면 아래 그대로
     if (this.state.phase === "QUESTION" || this.state.phase === "STARTING") {
-      this.updatePositions(elapsed);
+      this.updatePositions(dt);
     }
 
-    // 생존자만 좌표 브로드캐스트
     const visible = Object.values(this.state.players)
       .filter((p) => p.alive && !p.spectator)
       .map((p) => ({ id: p.id, x: p.x, y: p.y }));
