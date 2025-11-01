@@ -2,7 +2,7 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { Server } from "socket.io";
+import { Server as IOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import { GameRoom } from "./GameRoom";
@@ -13,14 +13,9 @@ import questionsRouter from "./routes/questions";
 const app = express();
 
 /** CORS는 반드시 최상단에서 */
-const ALLOW = (
-  process.env.CORS_ORIGIN ?? "http://localhost:5173,http://127.0.0.1:5173"
-)
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
+const ALLOW = "https://socket-oxgame.onrender.com";
 
-app.use(cors({ origin: ALLOW }));
+app.use(cors({ origin: ALLOW, credentials: false }));
 app.use(express.json());
 
 /** REST 라우트 & Swagger */
