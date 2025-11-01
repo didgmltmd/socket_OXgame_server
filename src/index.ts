@@ -2,7 +2,6 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { Server as IOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import { GameRoom } from "./GameRoom";
