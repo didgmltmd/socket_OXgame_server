@@ -243,7 +243,7 @@ export class GameRoom {
     this.io.to(this.id).emit("end", { winnerIds, winners: winnerNames });
     this.broadcastState();
 
-    // ✅ 1~2초 뒤에 정리 (덮어쓰기/무승부 방지)
+    // 1~2초 뒤에 정리 (덮어쓰기/무승부 방지)
     setTimeout(() => {
       for (const id of Object.keys(this.state.players)) {
         this.io.sockets.sockets.get(id)?.disconnect(true);

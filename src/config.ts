@@ -1,6 +1,6 @@
 export const FIELD = { width: 800, height: 400, dividerX: 400 } as const;
 
-export const MAX_PLAYERS = 15;
+export const MAX_PLAYERS = 50;
 export const START_DELAY = 5; // 모두 Ready 후 시작까지
 export const QUESTION_TIME = 10; // 문제 시간(이동 가능)
 export const RESULT_TIME = 3; // 정답 공개 연출
@@ -12,52 +12,52 @@ export const RADIUS = 14; // 플레이어 표시 반경
 export const QUESTIONS = [
   {
     id: 1,
-    text: "React 컴포넌트는 반드시 JSX 문법으로만 작성해야 한다.",
-    answer: "X" as const, // JS 함수형 컴포넌트로도 작성 가능
+    text: "나는 내년에 3학년이다.",
+    answer: "O" as const, // JS 함수형 컴포넌트로도 작성 가능
   },
   {
     id: 2,
-    text: "props는 상위 컴포넌트에서 하위 컴포넌트로 데이터를 전달하는 용도이다.",
-    answer: "O" as const,
+    text: "나는 백엔드 분야를 목표로 하고 있다.",
+    answer: "X" as const,
   },
   {
     id: 3,
-    text: "useState로 생성한 상태값은 직접 수정해도 자동으로 렌더링이 일어난다.",
-    answer: "X" as const, // setState 함수를 통해서만 렌더링 발생
+    text: "나는 교내 해커톤에서 대상을 수상했다.",
+    answer: "O" as const, // setState 함수를 통해서만 렌더링 발생
   },
   {
     id: 4,
-    text: "useEffect는 컴포넌트가 마운트될 때와 의존성 배열 값이 변경될 때 실행된다.",
+    text: "나의 깃허브 닉네임은 didgmltmd 이다.",
     answer: "O" as const,
   },
   {
     id: 5,
-    text: "React에서 이벤트 핸들러는 DOM 이벤트 이름과 동일하게 소문자로 작성해야 한다. (예: onclick)",
-    answer: "X" as const, // React는 camelCase로 작성 (onClick)
+    text: "나의 주력 언어는 JavaScript이다.",
+    answer: "O" as const, // React는 camelCase로 작성 (onClick)
   },
   {
     id: 6,
-    text: "부모가 자식을 렌더링할 때, 자식 컴포넌트의 props가 바뀌지 않으면 기본적으로 리렌더링되지 않는다.",
+    text: "연암공대의 마스코트는 말벌이다.",
     answer: "X" as const, // 기본적으로 리렌더링됨 (React.memo로 방지 가능)
   },
   {
     id: 7,
-    text: "key 속성은 React가 리스트 렌더링 시 각 요소를 구분하기 위해 사용하는 값이다.",
+    text: "나의 전화번호에는 7이 안들어간다.",
     answer: "O" as const,
   },
   {
     id: 8,
-    text: "React의 Virtual DOM은 실제 DOM보다 항상 빠르다.",
+    text: "나의 생일은 5월이다.",
     answer: "X" as const, // 대부분의 경우 효율적이지만, 항상 빠르다고는 할 수 없음
   },
   {
     id: 9,
-    text: "React에서 상태 끌어올리기(Lifting State Up)는 여러 컴포넌트가 같은 상태를 공유할 수 있도록 하는 방법이다.",
-    answer: "O" as const,
+    text: "나의 나이는 25살이다.",
+    answer: "X" as const,
   },
   {
     id: 10,
-    text: "Reconciliation 과정에서 key가 바뀌면 React는 해당 요소를 새로운 노드로 인식한다.",
-    answer: "O" as const,
+    text: "나의 mbti는 INTJ이다.",
+    answer: "X" as const,
   },
 ];
