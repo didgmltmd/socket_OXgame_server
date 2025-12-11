@@ -45,7 +45,6 @@ export interface ClientToServer {
     right?: boolean;
   }) => void;
 
-  // 추가: ack 콜백으로 현재 RoomState를 돌려주는 이벤트
   getState: (ack: (s: RoomState) => void) => void;
 }
 

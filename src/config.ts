@@ -12,52 +12,52 @@ export const RADIUS = 14; // 플레이어 표시 반경
 export const QUESTIONS = [
   {
     id: 1,
-    text: "나는 내년에 3학년이다.",
-    answer: "O" as const, // JS 함수형 컴포넌트로도 작성 가능
+    text: "React에서 상태 변경은 setState 함수를 호출해야만 렌더링이 발생한다.",
+    answer: "O" as const,
   },
   {
     id: 2,
-    text: "나는 백엔드 분야를 목표로 하고 있다.",
-    answer: "X" as const,
+    text: "부모 컴포넌트에서 자식 컴포넌트로 값을 전달할 때 props를 사용한다.",
+    answer: "O" as const,
   },
   {
     id: 3,
-    text: "나는 교내 해커톤에서 대상을 수상했다.",
-    answer: "O" as const, // setState 함수를 통해서만 렌더링 발생
+    text: "컴포넌트의 key는 배열의 인덱스를 항상 사용하는 것이 권장된다.",
+    answer: "X" as const,
   },
   {
     id: 4,
-    text: "나의 깃허브 닉네임은 didgmltmd 이다.",
+    text: "useEffect는 렌더링 직후 또는 의존성 배열이 변경될 때 실행된다.",
     answer: "O" as const,
   },
   {
     id: 5,
-    text: "나의 주력 언어는 JavaScript이다.",
-    answer: "O" as const, // React는 camelCase로 작성 (onClick)
+    text: "React에서 이벤트 핸들러는 HTML처럼 소문자로 작성한다(onclick).",
+    answer: "X" as const, // camelCase(onClick) 사용
   },
   {
     id: 6,
-    text: "연암공대의 마스코트는 말벌이다.",
-    answer: "X" as const, // 기본적으로 리렌더링됨 (React.memo로 방지 가능)
+    text: "React.memo는 props가 변경되지 않으면 컴포넌트의 리렌더링을 방지해준다.",
+    answer: "O" as const,
   },
   {
     id: 7,
-    text: "나의 전화번호에는 7이 안들어간다.",
+    text: "useState는 비동기로 동작할 수 있다.",
     answer: "O" as const,
   },
   {
     id: 8,
-    text: "나의 생일은 5월이다.",
-    answer: "X" as const, // 대부분의 경우 효율적이지만, 항상 빠르다고는 할 수 없음
+    text: "useRef로 생성한 값이 변경되면 컴포넌트는 리렌더링된다.",
+    answer: "X" as const,
   },
   {
     id: 9,
-    text: "나의 나이는 25살이다.",
-    answer: "X" as const,
+    text: "JSX에서는 조건부 렌더링을 위해 if 문을 직접 사용할 수 있다.",
+    answer: "X" as const, // JSX 안에서는 삼항/&& 등을 주로 사용
   },
   {
     id: 10,
-    text: "나의 mbti는 INTJ이다.",
-    answer: "X" as const,
+    text: "useCallback은 함수의 재생성을 방지하여 불필요한 렌더링을 줄이는 데 도움이 된다.",
+    answer: "O" as const,
   },
 ];

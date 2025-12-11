@@ -82,13 +82,8 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("getState", (cb: (s: any) => void) => {
     try {
-      // 개인에게 최신 스냅샷도 바로 한번 보내기(선택)
-      // room.broadcastState(socket.id);
       cb(room.state);
     } catch (e) {
-      // 에러 시에도 콜백 형식을 지켜주면 클라에서 err 체크 가능
-      // socket.io ACK에서 에러 첫 인자를 쓰는 패턴을 원하면 아래처럼:
-      // (cb as any)({ message: "failed" });
       cb(room.state);
     }
   });
@@ -96,7 +91,6 @@ io.on("connection", (socket: Socket) => {
   socket.on("ready", () => room.setReady(socket.id));
 
   socket.on("input", (payload: InputPayload) => {
-    // QUESTION(또는 STARTING 허용 시)만 이동 반영
     room.receiveInput(socket.id, payload);
   });
 

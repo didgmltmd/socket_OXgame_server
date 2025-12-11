@@ -53,10 +53,9 @@ export class GameRoom {
 
   private tick() {
     const now = Date.now();
-    const dt = (now - this.lastTick) / 1000; // 초 단위
+    const dt = (now - this.lastTick) / 1000;
     this.lastTick = now;
 
-    // 카운트다운 업데이트
     if (["STARTING", "QUESTION", "RESULT"].includes(this.state.phase)) {
       if (this.state.countdown > 0) {
         this.state.countdown -= 1 / TICK_HZ;
@@ -68,7 +67,7 @@ export class GameRoom {
       }
     }
 
-    // STARTING에도 이동 허용하려면 아래 그대로
+
     if (this.state.phase === "QUESTION" || this.state.phase === "STARTING") {
       this.updatePositions(dt);
     }
@@ -165,7 +164,7 @@ export class GameRoom {
     if (!q) {
       this.end([]);
       return;
-    } // 방어적
+    } 
     this.state.question = q;
     this.transition("QUESTION", QUESTION_TIME);
     this.io.to(this.id).emit("question", { id: q.id, text: q.text });
@@ -177,46 +176,36 @@ export class GameRoom {
   }
 
   private judge() {
-    // 현재 문제의 정답
     const correct = this.state.question!.answer;
     const eliminated: string[] = [];
 
-    // 정답 판정
     for (const p of Object.values(this.state.players)) {
-      if (!p.alive || p.spectator) continue; // 이미 탈락/관전자는 스킵
+      if (!p.alive || p.spectator) continue; 
 
-      const isOnRight = p.x >= FIELD.dividerX; // 오른쪽(X) / 왼쪽(O)
+      const isOnRight = p.x >= FIELD.dividerX; 
       const side = isOnRight ? "X" : "O";
 
       if (side !== correct) {
-        // 영구 탈락 처리
         p.alive = false;
         p.spectator = true;
 
-        // 입력 제거해서 이후 라운드에서도 절대 안 움직이도록
         this.inputs.delete(p.id);
-
         eliminated.push(p.id);
       }
     }
 
-    // 결과 브로드캐스트 (정답/탈락자 목록)
     this.io.to(this.id).emit("result", { correct, eliminated });
 
-    // 현재 생존자 수 계산
     const alive = Object.values(this.state.players).filter((p) => p.alive);
 
-    // 우승/무승부 판정
     if (alive.length <= 1) {
-      const winners = alive.length === 1 ? [alive[0].id] : []; // 0명이면 무승부
+      const winners = alive.length === 1 ? [alive[0].id] : [];
       this.end(winners);
       return;
     }
 
-    // 다음 단계(결과 표시 시간으로 전환)
     this.transition("RESULT", RESULT_TIME);
 
-    // 상태 스냅샷도 한번 내려주면 클라 동기화가 더 안정적
     this.broadcastState();
   }
 
@@ -243,7 +232,6 @@ export class GameRoom {
     this.io.to(this.id).emit("end", { winnerIds, winners: winnerNames });
     this.broadcastState();
 
-    // 1~2초 뒤에 정리 (덮어쓰기/무승부 방지)
     setTimeout(() => {
       for (const id of Object.keys(this.state.players)) {
         this.io.sockets.sockets.get(id)?.disconnect(true);
